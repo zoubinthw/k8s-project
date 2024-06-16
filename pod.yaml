@@ -10,5 +10,3 @@ spec:
   containers:
   - name: app
     image: hub.k8s-harbor.com/library/my_nginx@sha256:0db204f933b6d1def0c0c15578f61a80091f8316b04150918413fc4d5c87be69
-  - name: test
-    image: hub.k8s-harbor.com/library/my_nginx@sha256:0db204f933b6d1def0c0c15578f61a80091f8316b04150918413fc4d5c87be69
