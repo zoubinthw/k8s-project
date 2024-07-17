@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-re-demo
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: https://demo.atguigu.com:30948/hostname.html
+spec:
+  rules:
+  - host: hello2.atguigu.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: vh-svc-02
+          servicePort: 8000

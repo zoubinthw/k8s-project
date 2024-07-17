@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-demo02
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+      - foo.bar.com
+      secretName: tls-secret
+  rules:
+    - host: "foo.bar.com"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: vh-svc-03
+                port:
+                  number: 8000
