@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pd02
+spec:
+  containers:
+    - image: wangyanglinux/myapp:v2
+      name: test-container
+      volumeMounts:
+        - mountPath: /cache
+          name: cache-volume
+    - image: busybox
+      name: liveness-exec-container
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/sh", "-c", "sleep 3600s"]
+      volumeMounts:
+        - mountPath: /test
+          name: cache-volume
+  volumes:
+    - name: cache-volume
+      emptyDir: {}
+
+#    pdf原来的镜像版本太老了, 这边的实验是将空卷共享到同一个pod的不同容器

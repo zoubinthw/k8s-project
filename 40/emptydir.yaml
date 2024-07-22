@@ -4,7 +4,7 @@ metadata:
   name: test-pd
 spec:
   containers:
-  - image: registry.k8s.io/k8s-artifacts-prod/test-webserver
+  - image: wangyanglinux/myapp:v2
     name: test-container
     volumeMounts:
     - mountPath: /cache
@@ -13,4 +13,4 @@ spec:
   - name: cache-volume
     emptyDir: {}
 
-#    镜像版本太老了
+#    pdf原来的镜像版本太老了
