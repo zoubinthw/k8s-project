@@ -62,3 +62,5 @@ kubectl config use-context kubernetes --kubeconfig=/home/devuser/.kube/config
 登录到devuser, 可以kubectl get pod了, 但是这个用户由于3中配置了dev名称空间, 所以这个用户只能访问dev名称空间中的k8s资源,
 最终我们为k8s创建了devuser用户, 该用户可以管理dev名称空间下的一切资源
 
+总结: 7 就是在不同的用户空间, 想回到root(admin)了, 将config换成root的config即可
+
