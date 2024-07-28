@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fx-node
+  name: fx-node
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fx-node
+  template:
+    metadata:
+      labels:
+        app: fx-node
+    spec:
+      nodeName: k8s-node01
+      containers:
+      - name: myweb
+        image: wangyanglinux/myapp:v1
+        ports:
+        - containerPort: 80

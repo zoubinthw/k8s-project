@@ -1,0 +1,64 @@
+devuser: 小qq
+
+在master节点: /cert/devuser 下创建用户证书
+
+反正k8s没有用户维护功能, 这个得主机自己实现, 然后将用户配置到k8s中去
+
+# 下载证书生成工具
+wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+mv cfssl_linux-amd64 /usr/local/bin/cfssl
+wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
+wget https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64
+mv cfssl-certinfo_linux-amd64 /usr/local/bin/cfssl-certinfo
+
+// 这条指令在/etc/kubernetes/pki下面执行, 这样用户的证书的请求和私钥都出来了, 此时可以为集群设置信息了
+cfssl gencert -ca=ca.crt -ca-key=ca.key -profile=kubernetes /cert/devuser/devuser-csr.json | cfssljson -bare devuser
+
+// 回到/cert/devuser, 因为下面的指令会有一些缓存生成
+# 1.设置集群参数: ca.crt是证书, 为devuser配置可以操作集群的信息, 此时目录下出现devuser.kubeconfig的文件
+export KUBE_APISERVER="https://172.20.0.113:6443"
+kubectl config set-cluster kubernetes \
+--certificate-authority=/etc/kubernetes/pki/ca.crt \
+--embed-certs=true \
+--server=${KUBE_APISERVER} \
+--kubeconfig=devuser.kubeconfig
+## 此时devuser.kubeconfig的样子
+
+# 2.设置客户端认证参数
+kubectl config set-credentials devuser \
+--client-certificate=/etc/kubernetes/pki/devuser.pem \
+--client-key=/etc/kubernetes/pki/devuser-key.pem \
+--embed-certs=true \
+--kubeconfig=devuser.kubeconfig
+这条指令参数第一行: 指定客户端证书
+这条指令参数第二行: 指定客户端私钥
+这条指令参数第三行: 开启认证方式
+这条指令参数第四行: 写入的文件是1生成的文件
+## 此时devuser.kubeconfig的样子: 相比第1步会多出用户信息
+
+# 3.设置上下文参数, 在这之前, 先kubectl create namespace dev 创建dev的名称空间
+kubectl config set-context kubernetes \
+--cluster=kubernetes \
+--user=devuser \
+--namespace=dev \
+--kubeconfig=devuser.kubeconfig
+## 此时devuser.kubeconfig的样子: 相比第2步会多出用户上下文信息
+
+# 4.先role binding, 此时将admin下放到dev空间, 表示devuser可以在dev名称空间下拥有admin的全部权限
+kubectl create rolebinding devuser-admin-binding --clusterrole=admin --user=devuser --namespace=dev
+
+# 5.然后在devuser的家目录下创建.kube文件夹
+mkdir .kube
+
+# 6.把刚才生成的devuser.kubeconfig放到devuser的家目录下的.kube中(master root用户执行这条指令[包括1-5步骤])
+cp devuser.kubeconfig /home/devuser/.kube/
+chown devuser:devuser /home/devuser/.kube/devuser.kubeconfig
+mv /home/devuser/.kube/devuser.kubeconfig /home/devuser/.kube/config
+
+# 7.设置默认上下文, 此时执行这条指令是在devuser登录的shell中执行的, 让kubectl读取到devuser的配置信息, 此时devuser就可以以自己的名义操作有限的(之前配置的)集群资源了,
+kubectl config use-context kubernetes --kubeconfig=/home/devuser/.kube/config
+## cp -f ./devuser.kubeconfig /root/.kube/config, 这条指令没用到
+登录到devuser, 可以kubectl get pod了, 但是这个用户由于3中配置了dev名称空间, 所以这个用户只能访问dev名称空间中的k8s资源,
+最终我们为k8s创建了devuser用户, 该用户可以管理dev名称空间下的一切资源
+
