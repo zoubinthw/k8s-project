@@ -1,0 +1,18 @@
+[root@k8s-master 59]# helm install my-app ./helloworld-0.1.0.tgz
+NAME: my-app
+LAST DEPLOYED: Mon Jul 29 15:04:42 2024
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get the application URL by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=helloworld,app.kubernetes.io/instance=my-app" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace default $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace default port-forward $POD_NAME 8080:$CONTAINER_PORT
+
+
+
+
+
+ Hello MyApp | Version: v1 | <a href="hostname.html">Pod Name</a>
