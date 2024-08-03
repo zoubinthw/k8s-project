@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+#  ingressClassName: nginx-grafana 不能带这个
+  rules:
+    - host: "hello.megrafana.com"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: prometheus-grafana
+                port:
+                  number: 80
