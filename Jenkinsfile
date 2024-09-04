@@ -3,7 +3,7 @@ pipeline {
   stages {
     stage('build') {
       steps {
-        echo 'jenkins pipline03'
+        echo 'jenkins pipline06'
       }
     }
 
